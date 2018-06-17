@@ -1,5 +1,5 @@
 # munin-mikrotik-go
-Munin modules to monitor MikroTik router activity / writen in Go
+Munin modules to monitor MikroTik router activity / writen in Go, using gopkg.in/routeros.v2
 
 Add following to your munin plugins.conf
 
