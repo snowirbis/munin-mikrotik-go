@@ -82,8 +82,6 @@ func PrintStats() {
 		i++
 	}
 
-	fmt.Println(i)
-
 	fmt.Printf("conn.value %d\n", i)
 
 }

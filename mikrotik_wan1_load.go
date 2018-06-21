@@ -18,6 +18,7 @@ type Config struct {
 	Login    string
 	Password string
 	TLS      string
+	Iface    string
 }
 
 func main() {
@@ -52,16 +53,21 @@ func RunWithOption(option string) {
 }
 
 func PrintConf() {
-	fmt.Println("graph_title Router CPU Load")
-	fmt.Println("graph_vlabel cpu")
-	fmt.Println("graph_category system")
-	fmt.Println("graph_info This graph shows CPU Load on MikroTik device")
-	fmt.Println("graph_args -l 0")
-	fmt.Println("graph_scale no")
-	fmt.Println("cpu.label CPU Load, %")
-	fmt.Println("cpu.type GAUGE")
-	fmt.Println("cpu.draw AREA")
-	fmt.Println("cpu.graph yes")
+
+	fmt.Println("graph_title WAN1 interface throughput")
+	fmt.Println("graph_vlabel bits per second")
+	fmt.Println("graph_category network")
+	fmt.Println("graph_info This graph shows the incoming and outgoing traffic rate of an interface")
+	fmt.Println("in.label inbound")
+	fmt.Println("in.type DERIVE")
+	fmt.Println("in.draw AREA")
+	fmt.Println("in.min 0")
+	fmt.Println("in.cdef in,8,*")
+	fmt.Println("out.label outbound")
+	fmt.Println("out.type DERIVE")
+	fmt.Println("out.draw LINE1")
+	fmt.Println("out.min 0")
+	fmt.Println("out.cdef out,8,*")
 }
 
 func PrintStats() {
@@ -70,14 +76,13 @@ func PrintStats() {
 
 	c, err := dial(Conf)
 
-	reply, err := c.Run("/system/resource/print", "", "", "")
+	reply, err := c.Run("/interface/print", "?name="+Conf.Iface, "", "")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	cpu, err := strconv.Atoi(reply.Re[0].Map["cpu-load"])
-
-	fmt.Printf("cpu.value %d\n", cpu)
+	fmt.Println("in.value", reply.Re[0].Map["rx-byte"])
+	fmt.Println("out.value", reply.Re[0].Map["tx-byte"])
 
 }
 
@@ -94,6 +99,7 @@ func getEnv() Config {
 	login := os.Getenv("connect_login")
 	pass := os.Getenv("connect_password")
 	tls := os.Getenv("connect_tls")
+	iface := os.Getenv("if_wan1")
 
 	var Conf Config
 
@@ -102,6 +108,11 @@ func getEnv() Config {
 		Login:    login,
 		Password: pass,
 		TLS:      tls,
+		Iface:    iface,
+	}
+
+	if Conf.Iface == "" {
+		log.Fatalln("Interface if_wan1 undefined: set env.if_wan1 in plugins.conf")
 	}
 
 	return Conf

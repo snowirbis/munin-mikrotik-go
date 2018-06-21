@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -72,7 +73,7 @@ func PrintStats() {
 
 	reply, err := c.Run("/system/resource/print", "", "", "")
 	if err != nil {
-		return
+		log.Fatalln(err)
 	}
 
 	total, err := strconv.Atoi(reply.Re[0].Map["total-memory"])

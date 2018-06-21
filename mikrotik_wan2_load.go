@@ -3,8 +3,8 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"log"
 	"os"
-	"strconv"
 
 	"gopkg.in/routeros.v2"
 )
@@ -18,6 +18,7 @@ type Config struct {
 	Login    string
 	Password string
 	TLS      string
+	Iface    string
 }
 
 func main() {
@@ -75,16 +76,13 @@ func PrintStats() {
 
 	c, err := dial(Conf)
 
-	reply, err := c.Run("/interface/print", "?disabled=false", "?running=true", "?name=eth7-ilink-up")
+	reply, err := c.Run("/interface/print", "?name="+Conf.Iface, "", "")
 	if err != nil {
-		return
+		log.Fatalln(err)
 	}
 
-	in, err := strconv.Atoi(reply.Re[0].Map["rx-byte"])
-	out, err := strconv.Atoi(reply.Re[0].Map["tx-byte"])
-
-	fmt.Println("in.value", in)
-	fmt.Println("out.value", out)
+	fmt.Println("in.value", reply.Re[0].Map["rx-byte"])
+	fmt.Println("out.value", reply.Re[0].Map["tx-byte"])
 
 }
 
@@ -101,6 +99,7 @@ func getEnv() Config {
 	login := os.Getenv("connect_login")
 	pass := os.Getenv("connect_password")
 	tls := os.Getenv("connect_tls")
+	iface := os.Getenv("if_wan2")
 
 	var Conf Config
 
@@ -109,6 +108,11 @@ func getEnv() Config {
 		Login:    login,
 		Password: pass,
 		TLS:      tls,
+		Iface:    iface,
+	}
+
+	if Conf.Iface == "" {
+		log.Fatalln("Interface if_wan2 undefined: set env.if_wan2 in plugins.conf")
 	}
 
 	return Conf

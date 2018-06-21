@@ -83,8 +83,6 @@ func PrintStats() {
 		i++
 	}
 
-	fmt.Println(i)
-
 	fmt.Printf("leases.value %d\n", i)
 
 }
