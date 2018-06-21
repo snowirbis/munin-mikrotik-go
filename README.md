@@ -19,4 +19,4 @@ env.if_wan2 eth1-back-10M
 ```sh
 Monitor Wireless/client connection & latency
 Full munin-node emulation to run on any box in 1 minute
-```sh
+```
